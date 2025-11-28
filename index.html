@@ -2,83 +2,37 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>照片 → 溫暖柔光風格</title>
-
+<title>圖片測試頁</title>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        padding: 20px;
-        background: #fafafa;
-    }
+    body { font-family: Arial; text-align: center; padding-top: 40px; }
     h1 { font-size: 28px; }
-    #preview, #result {
-        width: 320px;
-        margin-top: 20px;
-        border-radius: 10px;
-    }
+    img { width: 300px; margin-top: 20px; border-radius: 10px; }
 </style>
 </head>
 
 <body>
 
-<h1>📸 照片 → 溫暖柔光美圖風格</h1>
+<h1>GitHub Pages 成功測試頁面</h1>
 
-<input type="file" id="inputImage" accept="image/*">
-<br><br>
+<p>這裡應該要顯示這段文字，如果你看到我 → 就代表 GitHub Pages 正常。</p>
 
-<button onclick="applyFilter('warm')">套用 ➜ 溫暖柔光</button>
-<button onclick="applyFilter('bright')">套用 ➜ 亮白柔焦</button>
-<button onclick="applyFilter('meitu')">套用 ➜ 美圖風格</button>
+<h2>上傳圖片測試</h2>
+<input type="file" id="upload" accept="image/*">
 
-<h2>原始圖片</h2>
 <img id="preview">
 
-<h2>風格後圖片</h2>
-<img id="result">
-
 <script>
-const inputImage = document.getElementById("inputImage");
-const preview = document.getElementById("preview");
-const result = document.getElementById("result");
-
-let originalImage = null;
-
-// 讀取圖片
-inputImage.addEventListener("change", function() {
+// 顯示圖片預覽
+document.getElementById("upload").addEventListener("change", function() {
     const file = this.files[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = function(e) {
-        preview.src = e.target.result;
-        originalImage = e.target.result;
+        document.getElementById("preview").src = e.target.result;
     };
     reader.readAsDataURL(file);
 });
-
-// 套用濾鏡
-function applyFilter(type) {
-    if (!originalImage) {
-        alert("請先選擇圖片！");
-        return;
-    }
-
-    let cssFilter = "";
-
-    if (type === "warm") {
-        cssFilter = "brightness(1.1) contrast(1.05) saturate(1.2) sepia(0.2)";
-    }
-    if (type === "bright") {
-        cssFilter = "brightness(1.2) contrast(1.1) blur(0.5px)";
-    }
-    if (type === "meitu") {
-        cssFilter = "brightness(1.15) contrast(1.1) saturate(1.3) sepia(0.1)";
-    }
-
-    result.style.filter = cssFilter;
-    result.src = originalImage;
-}
 </script>
 
 </body>
