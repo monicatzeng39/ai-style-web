@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>AI 風格轉換（保證能跑）</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/style-transfer@1.1.0"></script>
+
+<style>
+body {
+  font-family: system-ui;
+  max-width: 720px;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+img { max-width: 100%; border-radius: 12px; margin-top: 10px; }
+button {
+  padding: 10px 20px;
+  background: #ff7ccc;
+  color: white;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+<h1>AI 風格轉換</h1>
+
+<input type="file" id="input" accept="image/*">
+<button id="runBtn">開始轉換</button>
+
+<h2>原圖</h2>
+<img id="content">
+
+<h2>風格後</h2>
+<img id="output">
+
+<script>
+let model;
+
+// 載入保證能用的前端模型（不需要任何伺服器）
+async function loadModel() {
+  model = await tf.loadGraphModel(
+    "https://storage.googleapis.com/tfjs-models/savedmodel/style_transfer/style_transfer_v2/model.json"
+  );
+}
+loadModel();
+
+// 預覽原圖
+document.getElementById('input').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  document.getElementById('content').src = URL.createObjectURL(file);
+});
+
+// 轉換
+document.getElementById('runBtn').addEventListener('click', async () => {
+  const img = document.getElementById('content');
+  if (!img.src) return alert("請先選圖片！");
+
+  const tensor = tf.browser.fromPixels(img).toFloat().div(255).expandDims();
+  const stylized = await model.executeAsync(tensor);
+  
+  const result = await tf.browser.toPixels(stylized.squeeze());
+  const canvas = document.createElement('canvas');
+  canvas.width = img.width;
+  canvas.height = img.height;
+  const ctx = canvas.getContext('2d');
+  const imageData = ctx.createImageData(img.width, img.height);
+  imageData.data.set(result);
+  ctx.putImageData(imageData, 0, 0);
+
+  document.getElementById('output').src = canvas.toDataURL();
+});
+</script>
+
+</body>
+</html>
