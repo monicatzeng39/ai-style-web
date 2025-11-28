@@ -37,3 +37,65 @@ document.getElementById("upload").addEventListener("change", function() {
 
 </body>
 </html>
+<script>
+const inputImg = document.getElementById("inputImage");
+const previewImg = document.getElementById("preview");
+const resultImg = document.getElementById("result");
+const statusDiv = document.getElementById("status");
+
+inputImg.addEventListener("change", function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        previewImg.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+document.getElementById("genBtn").addEventListener("click", function () {
+    if (!previewImg.src) {
+        alert("請先選擇圖片！");
+        return;
+    }
+
+    statusDiv.innerText = "產生中...";
+
+    // 建立 canvas
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+
+    img.onload = function () {
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        // 1. 繪製原圖
+        ctx.drawImage(img, 0, 0);
+
+        // 2. 套用溫暖柔光濾鏡
+        ctx.globalCompositeOperation = "soft-light";
+        ctx.fillStyle = "rgba(255, 200, 150, 0.3)"; // 橘粉柔光
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 3. 加亮 +1 / 對比 +5%
+        ctx.globalCompositeOperation = "overlay";
+        ctx.fillStyle = "rgba(255,255,255,0.15)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 4. 膚色微暖
+        ctx.globalCompositeOperation = "color";
+        ctx.fillStyle = "rgba(255,170,120,0.2)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 輸出
+        const finalData = canvas.toDataURL("image/jpeg", 0.92);
+        resultImg.src = finalData;
+        statusDiv.innerText = "完成 ✔";
+    };
+
+    img.src = previewImg.src;
+});
+</script>
+
