@@ -1,101 +1,141 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8">
-<title>圖片測試頁</title>
-<style>
-    body { font-family: Arial; text-align: center; padding-top: 40px; }
-    h1 { font-size: 28px; }
-    img { width: 300px; margin-top: 20px; border-radius: 10px; }
-</style>
+  <meta charset="UTF-8" />
+  <title>照片 → 溫暖柔光美圖風格</title>
+  <style>
+    body {
+      font-family: system-ui, "Microsoft JhengHei";
+      text-align: center;
+      padding: 40px 20px;
+    }
+    h1 { font-size: 30px; margin-bottom: 10px; }
+    p { color: #555; }
+    #container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 30px;
+    }
+    .box {
+      width: 320px;
+    }
+    img {
+      width: 100%;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      object-fit: cover;
+    }
+    button {
+      margin-top: 16px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: none;
+      background: #ff8ab3;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    #status {
+      margin-top: 10px;
+      color: #666;
+    }
+  </style>
 </head>
 
 <body>
+  <h1>📸 照片 → 溫暖柔光美圖風格</h1>
+  <p>1. 上傳一張照片　2. 按下「產生風格圖」　3. 下載右邊的結果即可</p>
 
-<h1>GitHub Pages 成功測試頁面</h1>
+  <input type="file" id="upload" accept="image/*">
 
-<p>這裡應該要顯示這段文字，如果你看到我 → 就代表 GitHub Pages 正常。</p>
+  <div id="container">
+    <div class="box">
+      <h2>原始圖片</h2>
+      <img id="preview" alt="原始圖片將顯示在這裡">
+    </div>
+    <div class="box">
+      <h2>風格後圖片（溫暖柔光）</h2>
+      <img id="result" alt="風格後圖片將顯示在這裡">
+    </div>
+  </div>
 
-<h2>上傳圖片測試</h2>
-<input type="file" id="upload" accept="image/*">
+  <button id="genBtn">產生風格圖</button>
+  <div id="status"></div>
 
-<img id="preview">
+  <script>
+    const upload = document.getElementById("upload");
+    const previewImg = document.getElementById("preview");
+    const resultImg = document.getElementById("result");
+    const genBtn = document.getElementById("genBtn");
+    const statusDiv = document.getElementById("status");
 
-<script>
-// 顯示圖片預覽
-document.getElementById("upload").addEventListener("change", function() {
-    const file = this.files[0];
-    if (!file) return;
+    let originalDataUrl = null;
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        document.getElementById("preview").src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-});
-</script>
+    // 上傳時預覽
+    upload.addEventListener("change", function () {
+      const file = this.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        originalDataUrl = e.target.result;
+        previewImg.src = originalDataUrl;
+        resultImg.src = "";
+        statusDiv.textContent = "";
+      };
+      reader.readAsDataURL(file);
+    });
 
-</body>
-</html>
-<script>
-const inputImg = document.getElementById("inputImage");
-const previewImg = document.getElementById("preview");
-const resultImg = document.getElementById("result");
-const statusDiv = document.getElementById("status");
-
-inputImg.addEventListener("change", function () {
-    const file = this.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function (e) {
-        previewImg.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-});
-
-document.getElementById("genBtn").addEventListener("click", function () {
-    if (!previewImg.src) {
-        alert("請先選擇圖片！");
+    // 產生溫暖柔光風格
+    genBtn.addEventListener("click", function () {
+      if (!originalDataUrl) {
+        alert("請先選擇一張照片！");
         return;
-    }
+      }
 
-    statusDiv.innerText = "產生中...";
+      statusDiv.textContent = "處理中…";
+      genBtn.disabled = true;
 
-    // 建立 canvas
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
-
-    img.onload = function () {
+      const img = new Image();
+      img.onload = function () {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
         canvas.width = img.width;
         canvas.height = img.height;
 
-        // 1. 繪製原圖
+        // 1. 先畫原圖
         ctx.drawImage(img, 0, 0);
 
-        // 2. 套用溫暖柔光濾鏡
+        // 2. 柔光層（整體柔和）
         ctx.globalCompositeOperation = "soft-light";
-        ctx.fillStyle = "rgba(255, 200, 150, 0.3)"; // 橘粉柔光
+        ctx.fillStyle = "rgba(255, 200, 170, 0.35)"; // 暖橘柔光
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // 3. 加亮 +1 / 對比 +5%
-        ctx.globalCompositeOperation = "overlay";
-        ctx.fillStyle = "rgba(255,255,255,0.15)";
+        // 3. 加亮一點點
+        ctx.globalCompositeOperation = "screen";
+        ctx.fillStyle = "rgba(255,255,255,0.20)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // 4. 膚色微暖
+        // 4. 膚色微暖，偏日系
         ctx.globalCompositeOperation = "color";
-        ctx.fillStyle = "rgba(255,170,120,0.2)";
+        ctx.fillStyle = "rgba(255,180,140,0.25)";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // 輸出
-        const finalData = canvas.toDataURL("image/jpeg", 0.92);
-        resultImg.src = finalData;
-        statusDiv.innerText = "完成 ✔";
-    };
+        // 5. 回到正常合成，避免後面操作出錯
+        ctx.globalCompositeOperation = "source-over";
 
-    img.src = previewImg.src;
-});
-</script>
-
+        const outDataUrl = canvas.toDataURL("image/jpeg", 0.95);
+        resultImg.src = outDataUrl;
+        statusDiv.textContent = "完成 ✨（長按或右鍵即可存圖）";
+        genBtn.disabled = false;
+      };
+      img.src = originalDataUrl;
+    });
+  </script>
+</body>
+</html>
